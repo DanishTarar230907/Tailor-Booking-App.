@@ -190,15 +190,21 @@ class _BookingScreenState extends State<BookingScreen> {
         Navigator.pop(context, true); // Return true to indicate success
       }
     } catch (e) {
+      debugPrint('Booking Submit Error: $e');
       if (mounted) {
+        String message = 'Error submitting booking.';
+        if (e.toString().contains('FIRESTORE')) {
+          message = 'Network connection issue. Please check your internet and try again.';
+        }
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error submitting booking: $e'),
+            content: Text(message),
             backgroundColor: Colors.red,
           ),
         );
       }
-    } finally {
+    }
+ finally {
       if (mounted) {
         setState(() => _isLoading = false);
       }

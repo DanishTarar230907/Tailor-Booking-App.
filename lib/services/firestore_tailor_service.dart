@@ -15,11 +15,13 @@ class FirestoreTailorService {
       name: data['name'] ?? '',
       photo: data['photo'],
       description: data['description'] ?? '',
+      announcement: data['announcement'], // Added mapping
       phone: data['phone'],
       whatsapp: data['whatsapp'],
       email: data['email'],
       location: data['location'],
       shopHours: data['shopHours'],
+      bookingWindowDays: (data['bookingWindowDays'] as int?) ?? 7,
     );
   }
 
@@ -28,11 +30,13 @@ class FirestoreTailorService {
       'name': t.name,
       'photo': t.photo,
       'description': t.description,
+      'announcement': t.announcement, // Added mapping
       'phone': t.phone,
       'whatsapp': t.whatsapp,
       'email': t.email,
       'location': t.location,
       'shopHours': t.shopHours,
+      'bookingWindowDays': t.bookingWindowDays,
     };
   }
 

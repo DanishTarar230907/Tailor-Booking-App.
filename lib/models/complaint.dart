@@ -52,9 +52,14 @@ class Complaint {
   final String status; // New field: 'open', 'in_progress', 'resolved'
   final List<ComplaintReply> replies; // New field: conversation thread
 
+  final String customerId; // New field for direct querying
+  final String? tailorId; // Optional link to specific tailor
+
   Complaint({
     this.id,
     this.docId,
+    required this.customerId,
+    this.tailorId,
     required this.customerName,
     required this.customerEmail,
     this.category = 'other',
@@ -74,6 +79,8 @@ class Complaint {
     return {
       'id': id,
       'docId': docId,
+      'customerId': customerId,
+      'tailorId': tailorId,
       'customerName': customerName,
       'customerEmail': customerEmail,
       'category': category,
@@ -113,6 +120,8 @@ class Complaint {
     return Complaint(
       id: map['id'] as int?,
       docId: map['docId'] as String?,
+      customerId: map['customerId'] as String? ?? '',
+      tailorId: map['tailorId'] as String?,
       customerName: map['customerName'] as String? ?? '',
       customerEmail: map['customerEmail'] as String? ?? '',
       category: map['category'] as String? ?? 'other',
@@ -130,6 +139,7 @@ class Complaint {
   Complaint copyWith({
     int? id,
     String? docId,
+    String? customerId,
     String? customerName,
     String? customerEmail,
     String? category,
@@ -145,6 +155,7 @@ class Complaint {
     return Complaint(
       id: id ?? this.id,
       docId: docId ?? this.docId,
+      customerId: customerId ?? this.customerId,
       customerName: customerName ?? this.customerName,
       customerEmail: customerEmail ?? this.customerEmail,
       category: category ?? this.category,

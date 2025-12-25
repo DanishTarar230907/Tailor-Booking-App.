@@ -3,15 +3,21 @@ import '../models/tailor.dart' as models;
 import '../models/design.dart' as models;
 import '../models/complaint.dart' as models;
 import '../models/booking.dart' as models;
+import 'firestore_tailor_service.dart';
+import 'firestore_designs_service.dart';
+// import 'firestore_complaints_service.dart'; // Optional
 
 class SeedDataService {
   static Future<void> seedData() async {
     final db = DatabaseHelper.instance.database;
     
-    // Check if data already exists
+    // --- Firestore Seeding ---
+    // Always check/seed Firestore regardless of local DB state
+    await _seedFirestoreData();
+
     final existingTailor = await db.getTailor();
     if (existingTailor != null) {
-      // Data already seeded
+      // Local Data already seeded
       return;
     }
 
@@ -59,6 +65,8 @@ class SeedDataService {
     // Seed Complaints with replies
     final complaints = [
       models.Complaint(
+        customerId: 'customer_1',
+        tailorId: 'tailor_1',
         customerName: 'Alice Smith',
         customerEmail: 'alice@example.com',
         message: 'The suit I ordered arrived with a small tear. Can this be fixed?',
@@ -66,6 +74,8 @@ class SeedDataService {
         isResolved: true,
       ),
       models.Complaint(
+        customerId: 'customer_2',
+        tailorId: 'tailor_1',
         customerName: 'Bob Johnson',
         customerEmail: 'bob@example.com',
         message: 'The dress size was slightly off. Can I get it adjusted?',
@@ -73,6 +83,8 @@ class SeedDataService {
         isResolved: true,
       ),
       models.Complaint(
+        customerId: 'customer_3',
+        tailorId: 'tailor_1',
         customerName: 'Charlie Brown',
         customerEmail: 'charlie@example.com',
         message: 'When will my custom suit be ready?',
@@ -126,6 +138,75 @@ class SeedDataService {
 
     for (final booking in bookings) {
       await db.insertBooking(booking);
+    }
+    // --- Firestore Seeding ---
+    await _seedFirestoreData();
+  }
+
+
+
+  static Future<void> _seedFirestoreData() async {
+    print('Checking Firestore data...');
+    try {
+      // 1. Seed Tailor
+      final tailorService = FirestoreTailorService();
+      final existingTailor = await tailorService.getTailor();
+      
+      if (existingTailor == null) {
+        print('Seeding Firestore Tailor...');
+        final tailor = models.Tailor(
+          name: 'Grace Tailor Studio', 
+          photo: 'https://images.unsplash.com/photo-1520223297774-899238b2c899?w=400',
+          description: 'Expert bespoke tailoring for ladies and gents. Quality craftsmanship guaranteed.',
+          phone: '+1 555 000 0000',
+          email: 'support@gracetailor.com',
+          location: '123 Fashion Street, Design City',
+          shopHours: 'Mon-Sun: 9:00 AM - 9:00 PM',
+          bookingWindowDays: 14,
+        );
+        await tailorService.insertOrUpdateTailor(tailor);
+      } else {
+        print('Firestore Tailor already exists.');
+      }
+
+      // 2. Seed Designs
+      final designsService = FirestoreDesignsService();
+      final existingDesigns = await designsService.getAllDesigns();
+      
+      if (existingDesigns.isEmpty) {
+         print('Seeding Firestore Designs...');
+         final designs = [
+            models.Design(
+              title: 'Summer Floral Dress',
+              photo: 'https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?w=400',
+              price: 120.00,
+            ),
+            models.Design(
+              title: 'Classic Wool Coat',
+              photo: 'https://images.unsplash.com/photo-1539533018447-63fcce2678e3?w=400',
+              price: 350.00,
+            ),
+            models.Design(
+              title: 'Silk Evening Gown',
+              photo: 'https://images.unsplash.com/photo-1566174053879-31528523f8ae?w=400',
+              price: 450.00,
+            ),
+             models.Design(
+              title: 'Modern Business Suit',
+              photo: 'https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=400',
+              price: 280.00,
+            ),
+         ];
+         
+         for (final design in designs) {
+           await designsService.addDesign(design);
+         }
+      } else {
+         print('Firestore Designs already exist.');
+      }
+
+    } catch (e) {
+      print('Error seeding Firestore: $e');
     }
   }
 }

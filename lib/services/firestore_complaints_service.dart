@@ -50,6 +50,19 @@ class FirestoreComplaintsService {
     return snap.docs.map(_fromDoc).toList();
   }
 
+  Stream<List<Complaint>> getComplaintsForCustomer(String customerId) {
+    return _collection
+        .where('customerId', isEqualTo: customerId)
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .map((snap) => snap.docs.map(_fromDoc).toList());
+  }
+
+  // Alias for legacy support if needed, but fileComplaint was requested in error log
+  Future<Complaint> fileComplaint(Complaint complaint) async {
+      return addComplaint(complaint);
+  }
+
   Future<Complaint> addComplaint(Complaint complaint) async {
     final doc = await _collection.add(_toMap(complaint));
     return complaint.copyWith(docId: doc.id);

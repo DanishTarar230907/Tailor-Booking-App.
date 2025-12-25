@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'screens/auth_wrapper.dart';
 import 'services/seed_data.dart';
 
@@ -13,42 +15,44 @@ import 'firebase_options_stub.dart'
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Global error handler to catch and log Firestore assertion errors without crashing the UI
+  FlutterError.onError = (FlutterErrorDetails details) {
+    if (details.exception.toString().contains('FIRESTORE')) {
+      debugPrint('Caught Firestore Background Error: ${details.exception}');
+      return; 
+    }
+    FlutterError.presentError(details);
+  };
   
   // Initialize Firebase
   try {
     await Firebase.initializeApp(
       options: firebase_options.DefaultFirebaseOptions.currentPlatform,
     );
+    
+    // Set Firestore settings before first use
+    if (kIsWeb) {
+      try {
+        FirebaseFirestore.instance.settings = const Settings(
+          persistenceEnabled: false,
+        );
+      } catch (e) {
+        // Settings might have been already set by a hot restart or previous attempt
+        debugPrint('Firestore settings already set or error: $e');
+      }
+    }
+    
     debugPrint('✓ Firebase initialized successfully!');
+    
+    // Run seeding in background only if init succeeded
+    SeedDataService.seedData().catchError((e) {
+      debugPrint('Background Seeding Error: $e');
+    });
   } catch (e) {
-    debugPrint('');
-    debugPrint('═══════════════════════════════════════════════════════════');
-    debugPrint('⚠️  Firebase Configuration Required');
-    debugPrint('═══════════════════════════════════════════════════════════');
-    debugPrint('');
-    debugPrint('Error: $e');
-    debugPrint('');
-    debugPrint('To set up Firebase, choose one of these options:');
-    debugPrint('');
-    debugPrint('Option 1 (Recommended): Run the setup script');
-    debugPrint('  Windows PowerShell: .\\setup_firebase.ps1');
-    debugPrint('  Linux/Mac: ./setup_firebase.sh');
-    debugPrint('');
-    debugPrint('Option 2: Manual setup');
-    debugPrint('  1. Run: firebase login');
-    debugPrint('  2. Run: dart pub global run flutterfire_cli:flutterfire configure');
-    debugPrint('  3. Follow the prompts to select/create a Firebase project');
-    debugPrint('');
-    debugPrint('Option 3: Manual configuration');
-    debugPrint('  See FIREBASE_SETUP.md for detailed manual setup instructions');
-    debugPrint('');
-    debugPrint('═══════════════════════════════════════════════════════════');
-    debugPrint('');
-    // Continue anyway - the app will show errors when trying to use Firebase
+    debugPrint('Firebase Init Error: $e');
   }
   
-  // Seed data on app startup
-  await SeedDataService.seedData();
   runApp(const MyApp());
 }
 

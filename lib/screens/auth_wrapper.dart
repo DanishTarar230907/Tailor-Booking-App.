@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../services/auth_service.dart';
 import 'auth_screen.dart';
-import 'enhanced_tailor_dashboard.dart';
-import 'enhanced_customer_dashboard.dart';
+import 'tailor_dashboard.dart';
+import 'customer_dashboard.dart';
 
 class AuthWrapper extends StatelessWidget {
   const AuthWrapper({super.key});
@@ -85,6 +85,13 @@ class _RoleBasedDashboardState extends State<_RoleBasedDashboard> {
     return FutureBuilder<String?>(
       future: _authService.getUserRole(widget.userId),
       builder: (context, snapshot) {
+        // Handle error state to prevent blank screen
+        if (snapshot.hasError) {
+          debugPrint('Auth Role Error: ${snapshot.error}');
+          // Default to customer dashboard on error to keep app functional
+          return const CustomerDashboard();
+        }
+
         // Show loading while fetching role
         if (snapshot.connectionState == ConnectionState.waiting && !_roleSet) {
           return const Scaffold(
@@ -98,17 +105,17 @@ class _RoleBasedDashboardState extends State<_RoleBasedDashboard> {
 
         // First check if user is admin by email (highest priority)
         if (_authService.isAdmin(userEmail)) {
-          return const EnhancedTailorDashboard();
+          return const TailorDashboard();
         }
 
         // Route based on role from Firestore
         if (role == 'tailor') {
-          return const EnhancedTailorDashboard();
+          return const TailorDashboard();
         } else if (role == 'customer') {
-          return const EnhancedCustomerDashboard();
+          return const CustomerDashboard();
         } else {
           // Default to customer while role is being set
-          return const EnhancedCustomerDashboard();
+          return const CustomerDashboard();
         }
       },
     );

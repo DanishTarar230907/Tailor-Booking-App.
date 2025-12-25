@@ -67,15 +67,18 @@ class UnifiedProfileCard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Flexible(
-                    child: Text(
-                      name,
-                      style: const TextStyle(
-                        color: Color(0xFF1f455b),
-                        fontSize: 26,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 0.5,
+                    child: FittedBox(
+                       fit: BoxFit.scaleDown,
+                       child: Text(
+                        name,
+                        style: const TextStyle(
+                          color: Color(0xFF1f455b),
+                          fontSize: 26,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 0.5,
+                        ),
+                        textAlign: TextAlign.center,
                       ),
-                      textAlign: TextAlign.center,
                     ),
                   ),
                   if (onEdit != null) ...[
@@ -122,8 +125,10 @@ class UnifiedProfileCard extends StatelessWidget {
 
               if (quickActions.isNotEmpty) ...[
                 const SizedBox(height: 24),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                Wrap(
+                  spacing: 16,
+                  runSpacing: 16,
+                  alignment: WrapAlignment.center,
                   children: quickActions.map((action) => _buildQuickAction(action)).toList(),
                 ),
               ],

@@ -181,6 +181,7 @@ class AppDatabase extends _$AppDatabase {
     final results = await (select(complaints)..orderBy([(c) => OrderingTerm.desc(c.createdAt)])).get();
     return results.map((row) => models.Complaint(
       id: row.id,
+      customerId: '', // Legacy/Local complaint
       customerName: row.customerName,
       customerEmail: '', // Default empty for legacy local DB data
       message: row.message,

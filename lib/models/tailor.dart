@@ -4,11 +4,13 @@ class Tailor {
   final String name;
   final String? photo;
   final String description;
+  final String? announcement; // New Field
   final String? phone;
   final String? whatsapp;
   final String? email;
   final String? location;
   final String? shopHours;
+  final int bookingWindowDays; // New field for customizable booking period
 
   Tailor({
     this.id,
@@ -16,11 +18,13 @@ class Tailor {
     required this.name,
     this.photo,
     required this.description,
+    this.announcement,
     this.phone,
     this.whatsapp,
     this.email,
     this.location,
     this.shopHours,
+    this.bookingWindowDays = 7, // Default to 1 week
   });
 
   Map<String, dynamic> toMap() {
@@ -30,11 +34,13 @@ class Tailor {
       'name': name,
       'photo': photo,
       'description': description,
+      'announcement': announcement,
       'phone': phone,
       'whatsapp': whatsapp,
       'email': email,
       'location': location,
       'shopHours': shopHours,
+      'bookingWindowDays': bookingWindowDays,
     };
   }
 
@@ -45,11 +51,13 @@ class Tailor {
       name: map['name'] as String,
       photo: map['photo'] as String?,
       description: map['description'] as String,
+      announcement: map['announcement'] as String?,
       phone: map['phone'] as String?,
       whatsapp: map['whatsapp'] as String?,
       email: map['email'] as String?,
       location: map['location'] as String?,
       shopHours: map['shopHours'] as String?,
+      bookingWindowDays: map['bookingWindowDays'] as int? ?? 7,
     );
   }
 
@@ -59,11 +67,13 @@ class Tailor {
     String? name,
     String? photo,
     String? description,
+    String? announcement,
     String? phone,
     String? whatsapp,
     String? email,
     String? location,
     String? shopHours,
+    int? bookingWindowDays,
   }) {
     return Tailor(
       id: id ?? this.id,
@@ -71,11 +81,13 @@ class Tailor {
       name: name ?? this.name,
       photo: photo ?? this.photo,
       description: description ?? this.description,
+      announcement: announcement ?? this.announcement,
       phone: phone ?? this.phone,
       whatsapp: whatsapp ?? this.whatsapp,
       email: email ?? this.email,
       location: location ?? this.location,
       shopHours: shopHours ?? this.shopHours,
+      bookingWindowDays: bookingWindowDays ?? this.bookingWindowDays,
     );
   }
 }
